@@ -1,0 +1,32 @@
+/* Inverted SEELE theme: dark ground, paper-gray text, readable crimson accents. */
+@import url("styles.css");
+
+:root {
+  --background: #171A1A;
+  --surface: #171A1A;
+  --text: #DAD8D1;
+  --muted: color-mix(in srgb, #DAD8D1 72%, #171A1A);
+  --accent: #E06A74;
+  --alert: #E06A74;
+  --line: #DAD8D1;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--background);
+}
+
+a:hover,
+a:active { color: var(--accent); }
+
+a:focus-visible,
+button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.profile-image,
+.post-body pre,
+.research-figure { border-radius: 0; }
+
+.scan-line { filter: none; }

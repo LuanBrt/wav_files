@@ -1,0 +1,12 @@
+/* Cold network palette. Use this file instead of styles.css to preview it. */
+@import url("styles.css");
+
+:root {
+  --background: #10151D;
+  --surface: #192430;
+  --text: #DFE7EB;
+  --muted: #9BABB9;
+  --accent: #83C7CE;
+  --alert: #CB8FA9;
+  --line: #314554;
+}

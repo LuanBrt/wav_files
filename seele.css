@@ -1,0 +1,36 @@
+/* SEELE theme: import this file after cloning to apply the complete palette. */
+@import url("styles.css");
+
+:root {
+  --background: #DAD8D1;
+  --surface: #DAD8D1;
+  --text: #171A1A;
+  --muted: color-mix(in srgb, #171A1A 72%, #DAD8D1);
+  --accent: #B8313E;
+  --alert: #B8313E;
+  --line: #171A1A;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--background);
+}
+
+a:hover,
+a:active { color: var(--accent); }
+
+a:focus-visible,
+button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.profile-image,
+.post-body pre,
+.research-figure {
+  border-radius: 0;
+}
+
+.scan-line {
+  filter: none;
+}

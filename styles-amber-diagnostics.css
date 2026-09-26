@@ -1,0 +1,12 @@
+/* Amber diagnostics palette. Use this file instead of styles.css to preview it. */
+@import url("styles.css");
+
+:root {
+  --background: #171612;
+  --surface: #252219;
+  --text: #E8E0CF;
+  --muted: #B5AA93;
+  --accent: #D9B76F;
+  --alert: #CD7865;
+  --line: #4A4332;
+}

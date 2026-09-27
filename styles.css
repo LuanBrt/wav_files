@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
 
 :root {
   --background: #f9f8f4;
@@ -9,6 +9,12 @@
   --line: #d9d6ca;
   --font-ui: "IBM Plex Sans", Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --margin-width: 76px;
+  --margin-line: var(--line);
+  --margin-label-size: .64rem;
+  --margin-accent: #B8313E;
+  --font-margin: "Share Tech Mono", var(--font-mono);
+  --signal-width: 150px;
 }
 
 * { box-sizing: border-box; }
@@ -33,10 +39,13 @@ nav a { text-decoration: none; }
 
 main { padding: 64px 24px 80px; }
 .home-layout { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 72px; }
-.profile-panel { align-self: start; position: sticky; top: 28px; }
+.profile-panel { align-self: start;  top: 28px; }
 .profile-image { aspect-ratio: 1; border-radius: 0; display: block; object-fit: cover; outline: 1px solid var(--line); outline-offset: 5px; width: 132px; }
 .profile-links { display: grid; gap: 8px; margin-top: 22px; font: .72rem/1.3 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
 .profile-links a { text-decoration: none; width: fit-content; }
+.margin-rail,
+.signal-study,
+.margin-section { display: none; }
 .intro { max-width: 690px; padding-bottom: 72px; }
 .eyebrow, .post-date, .section-heading span, .figure-meta { color: var(--accent); font: 600 .7rem/1.3 var(--font-mono); letter-spacing: .09em; }
 h1, h2, h3, p { margin-top: 0; }
@@ -66,6 +75,9 @@ h2 { font-size: 1.15rem; font-family: var(--font-ui); }
 .loading-posts { color: var(--muted); grid-column: 1 / -1; }
 .research-figure { border: 1px solid var(--line); margin: 0 0 72px; padding: 14px; position: relative; }
 .research-figure svg { color: var(--muted); display: block; height: auto; width: 100%; }
+.sidebar-figure { margin: 30px 0 0; padding: 6px; width: 170px; }
+.sidebar-figure svg { height: 140px; transform: scaleX(-1); }
+.sidebar-figure .figure-meta { display: block; font-size: .56rem; margin-top: 6px; padding-top: 6px; }
 .figure-meta { border-top: 1px solid var(--line); display: flex; gap: 18px; justify-content: space-between; margin-top: 12px; padding-top: 10px; }
 .corner-mark { border-color: var(--accent); height: 12px; position: absolute; width: 12px; }
 .corner-mark-top { border-left: 1px solid; border-top: 1px solid; left: -5px; top: -5px; }
@@ -98,4 +110,23 @@ footer p { margin: 0; } footer div { display: flex; gap: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+
+@media (min-width: 1320px) {
+  .margin-rail { display: block; position: absolute; }
+  .margin-rail-left { border-left: 1px solid var(--margin-line); height: 150px; left: max(24px, calc(50% - 470px - var(--margin-width))); top: 140px; }
+  .margin-marker { background: var(--margin-accent); display: block; height: 5px; left: -1px; position: absolute; top: 36px; width: 5px; }
+  .margin-identity { color: var(--text); font: var(--margin-label-size)/1 var(--font-margin); left: 14px; letter-spacing: .08em; position: absolute; top: 2px; transform: rotate(90deg); transform-origin: top left; white-space: nowrap; }
+  .intro,
+  #writing { position: relative; }
+  .margin-section { color: var(--text); display: block; font: var(--margin-label-size)/1.2 var(--font-margin); left: calc(100% + 24px); letter-spacing: .08em; position: absolute; text-decoration: none; top: 2px; white-space: nowrap; }
+  .margin-section::before { background: var(--margin-line); content: ""; height: 1px; position: absolute; right: calc(100% + 10px); top: 50%; width: 24px; }
+  .margin-section:hover,
+  .margin-section:active { color: var(--text); }
+  .margin-section:hover::before,
+  .margin-section:active::before { background: var(--margin-accent); }
+  .margin-section:focus-visible { outline: 1px solid var(--margin-accent); outline-offset: 5px; }
+  .signal-study { bottom: 42px; color: var(--text); display: block; margin: 0; position: fixed; right: max(24px, calc(50% - 470px - var(--signal-width))); width: var(--signal-width); }
+  .signal-study svg { display: block; height: auto; width: 100%; }
+  .signal-study figcaption { border-top: 1px solid var(--margin-line); font: var(--margin-label-size)/1.35 var(--font-margin); letter-spacing: .07em; margin-top: 6px; padding-top: 6px; white-space: nowrap; }
 }

@@ -29,4 +29,15 @@ button:focus-visible {
 .post-body pre,
 .research-figure { border-radius: 0; }
 
-.scan-line { filter: none; }
+.scan-line { display: none; }
+.point-cloud { animation: none; }
+
+.sidebar-figure .scan-line {
+  animation: scan 3.4s ease-in-out infinite;
+  display: inline;
+  filter: none;
+}
+
+.sidebar-figure .point-cloud {
+  animation: point-pulse 2.8s ease-in-out infinite;
+}

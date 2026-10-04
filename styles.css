@@ -15,6 +15,10 @@
   --margin-accent: #B8313E;
   --font-margin: "Share Tech Mono", var(--font-mono);
   --signal-width: 150px;
+  /* Reading measures inspired by publication layouts such as Medium. */
+  --article-width: 680px;
+  --article-body-size: 1.25rem;
+  --article-body-leading: 1.68;
 }
 
 * { box-sizing: border-box; }
@@ -65,13 +69,18 @@ h2 { font-size: 1.15rem; font-family: var(--font-ui); }
 .post p:last-child { color: var(--muted); margin-bottom: 0; }
 .post button { all: unset; cursor: pointer; display: block; }
 .post button:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.post-body { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 24px; max-width: 720px; }
-.post-body h1, .post-body h2, .post-body h3 { letter-spacing: -.025em; margin: 1.5em 0 .5em; }
-.post-body h1 { font-size: 2rem; }.post-body h2 { font: 700 1.45rem/1.2 Georgia, serif; }.post-body h3 { font: 700 1.15rem/1.2 Georgia, serif; }
-.post-body p, .post-body li { color: var(--muted); }
-.post-body pre { background: var(--surface); border-radius: 4px; overflow-x: auto; padding: 16px; }
-.post-body code { font-family: var(--font-mono); font-size: .9em; }
-.post-body blockquote { border-left: 3px solid var(--accent); color: var(--muted); margin-left: 0; padding-left: 16px; }
+.post-body { border-top: 1px solid var(--line); font-family: var(--font-ui); margin-top: 28px; max-width: var(--article-width); padding-top: 32px; }
+.post-body h1, .post-body h2, .post-body h3 { color: var(--text); letter-spacing: -.025em; margin: 2em 0 .58em; }
+.post-body h1 { font: 700 2.25rem/1.12 var(--font-ui); }
+.post-body h2 { font: 700 1.65rem/1.22 var(--font-ui); }
+.post-body h3 { font: 700 1.3rem/1.28 var(--font-ui); }
+.post-body p, .post-body li { color: var(--muted); font-size: var(--article-body-size); line-height: var(--article-body-leading); }
+.post-body p { margin-bottom: 1.45em; }
+.post-body ul, .post-body ol { margin: 0 0 1.5em; padding-left: 1.35em; }
+.post-body li + li { margin-top: .45em; }
+.post-body pre { background: var(--surface); border-radius: 4px; font-size: .9rem; margin: 2em 0; overflow-x: auto; padding: 20px; }
+.post-body code { font-family: var(--font-mono); font-size: .85em; }
+.post-body blockquote { border-left: 3px solid var(--accent); color: var(--muted); font-size: 1.4rem; line-height: 1.45; margin: 2em 0; padding-left: 22px; }
 .loading-posts { color: var(--muted); grid-column: 1 / -1; }
 .research-figure { border: 1px solid var(--line); margin: 0 0 72px; padding: 14px; position: relative; }
 .research-figure svg { color: var(--muted); display: block; height: auto; width: 100%; }
@@ -86,10 +95,10 @@ h2 { font-size: 1.15rem; font-family: var(--font-ui); }
 .point-cloud { animation: point-pulse 2.8s ease-in-out infinite; }
 @keyframes scan { 0%, 100% { transform: translateX(0); opacity: .35; } 50% { transform: translateX(670px); opacity: 1; } }
 @keyframes point-pulse { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
-.post-page { max-width: 760px; padding-top: 0; }
+.post-page { max-width: var(--article-width); padding-top: 44px; }
 .back-link { color: var(--accent); font: 600 .75rem var(--font-mono); letter-spacing: .1em; text-decoration: none; }
-.post-page-title { font-size: clamp(2.5rem, 6vw, 4.5rem); line-height: 1.05; margin: 18px 0; }
-.post-page .post-date { margin-bottom: 36px; }
+.post-page-title { font-size: clamp(2.55rem, 5vw, 3.25rem); line-height: 1.08; letter-spacing: -.04em; margin: 24px 0 40px; }
+.post-page .post-date { margin-bottom: 44px; }
 .post-page .post-body { border-top: 0; margin-top: 0; padding-top: 0; }
 footer { border-top: 1px solid var(--line); display: flex; justify-content: space-between; padding: 25px 24px 45px; color: var(--muted); font: .75rem var(--font-mono); }
 footer p { margin: 0; } footer div { display: flex; gap: 18px; }
@@ -105,6 +114,10 @@ footer p { margin: 0; } footer div { display: flex; gap: 18px; }
   .post { display: block; padding: 22px 0; }
   .post-date { margin-bottom: 8px; }
   .post h3 { margin-bottom: 10px; }
+  .post-page { padding-top: 24px; }
+  .post-page-title { font-size: clamp(2.2rem, 11vw, 2.8rem); }
+  .post-body { padding-top: 26px; }
+  .post-body p, .post-body li { font-size: 1.15rem; }
   footer { gap: 16px; flex-direction: column; }
 }
 

@@ -1,0 +1,32 @@
+
+
+<p>PFNs have emerged as powerfull alternatives for machine learning engineering tasks, which was previously an area that persisted against the advances of deep learning approaches. These models are based on being in-context learners. They are pretrained on synthetic datasets produced by random SCMs, seeing no "real-dataset" during this phase, what they learn to approximate is the posterior predictive distribution of a dataset by using the training rows as context, and learning how to "based on this data, what should the prediction of this instance be".</p>
+
+<p>Although they weren't the first time transformers were applied to tabular data, I see it as the first real bitter-lesson pilled approach to this domain, you can scale pretraining by generating more and better synthetic datasets and the models will just continue learningm offering even better performance on real world data.</p>
+
+<p>
+Given their success, there are a few things that I think related to their future, possible applications, and missing pieces. 
+
+Your PFN can do more than just model the posterior predictive distribution of your data. Most of tabular data tasks involve trying to predicit a missing piece of your data, I have a explicit target variable which I don't know the true value of, and so, I will use my super powerfull PFN to uncover it's true value. Doing that you can do (stuff), and it's certainly usefull, but I fell your model could deliever more than that, giving an example I worked on, ShapPFN!!! Those still present in the tabular data mines, probably have heard of Shapley Additive Values (or just SHAP), their goal is basically to give you an estimation on how much each feature is important to the model. The standard way one would try to estime the shap values for a giving model, is by masking subset of features, and seeing how the final prediction changes when the model has no information about those masked features. The problem is, for a tabular foundational model, getting those masked predictions is more costly than for other simpler models. Some newer methods try to amortize this cost by caching and things like that, but we can go a different path in order to solve this problem. ViaSHAP, went on a different direction, instead of treating the shap value estimation as a post-hoc procedure, it transfered the estimation cost to the training phase, by treating the model as a 'projection' that, for each feature passed, outputs its shapley value, the prediction itself is then aquired by summing up the individual contributions, so you just apply a CE loss on the final prediction and a shap consistency one on the attributions that were made. When I read the ViaSHAP paper, for me their method was a natural fit for the PFN paradigm, in PFNs you attribute the cost of learning a new dataset to pretraining and by using a ViaSHAP style model you attribute the cost of estimating shap values to the learning a new dataset phase. 
+
+<p>And there are many other different directions one could go about using this kind of model, you could maximize the axis of improving your tabarena score, but there are also </p>
+
+
+
+
+</p>
+<!-- 
+<p>This is the first post on my small corner of the internet.</p>
+
+<h2>What belongs here</h2>
+<p>I want this to be a home for notes on machine learning, projects, and whatever else I am thinking about.</p>
+
+<ul>
+  <li>Experiments worth documenting</li>
+  <li>Things I am learning</li>
+  <li>Useful links and ideas</li>
+</ul>
+
+<blockquote>Small, unfinished thoughts are welcome here too.</blockquote>
+
+<p>Add a new HTML file in the <code>posts/</code> folder, then add its card information to <code>posts/index.json</code>.</p> -->

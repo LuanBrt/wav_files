@@ -23,7 +23,7 @@ async function loadPostList() {
       container.append(article);
     });
   } catch {
-    container.innerHTML = '<p class="loading-posts">Posts could not be loaded. Check <code>posts/index.json</code>.</p>';
+    container.innerHTML = '<p class="loading-posts">Posts could not be loaded.</p>';
   }
 }
 
@@ -41,6 +41,12 @@ async function loadSinglePost() {
     const content = await response.text();
     document.title = `${post.title || 'Post'} — Wav Files`;
     container.innerHTML = `<a class="back-link" href="index.html#writing">← ALL WRITING</a><h1 class="post-page-title">${escapeHtml(post.title || 'Untitled post')}</h1><div class="post-body">${content}</div>`;
+    try {
+      await MathJax.startup.promise;
+      await MathJax.typesetPromise([container]);
+    } catch (error) {
+      console.error('MathJax rendering failed :( :', error);
+    }
   } catch {
     container.innerHTML = '<a class="back-link" href="index.html#writing">← ALL WRITING</a><p>That post could not be found.</p>';
   }

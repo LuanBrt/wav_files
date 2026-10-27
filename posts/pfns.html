@@ -1,32 +1,394 @@
+<p>PFNs <a href="#ref-hollmann2025">[1]</a> have emerged as powerful alternatives for tabular machine learning tasks, an
+  area that had long resisted the
+  advances
+  of deep learning approaches. These models are in-context learners, pretrained on synthetic datasets produced by random
+  structural causal models, without seeing real datasets during this phase. They learn to approximate the posterior
+  predictive distribution of a dataset by using the training rows as context: "Based on this data, what should the
+  prediction for this instance be?"</p>
 
 
-<p>PFNs have emerged as powerfull alternatives for machine learning engineering tasks, which was previously an area that persisted against the advances of deep learning approaches. These models are based on being in-context learners. They are pretrained on synthetic datasets produced by random SCMs, seeing no "real-dataset" during this phase, what they learn to approximate is the posterior predictive distribution of a dataset by using the training rows as context, and learning how to "based on this data, what should the prediction of this instance be".</p>
+<figure class="article-figure">
+  <picture class="article-figure__media">
+    <source srcset="images/original.webp" type="image/webp">
+    <img class="diagram" src="images/original.webp" alt="Overview of TabPFN" width="2167" height="1155">
+  </picture>
+  <figcaption class="article-figure__caption">TabPFN Overview</figcaption>
+</figure>
 
-<p>Although they weren't the first time transformers were applied to tabular data, I see it as the first real bitter-lesson pilled approach to this domain, you can scale pretraining by generating more and better synthetic datasets and the models will just continue learningm offering even better performance on real world data.</p>
-
-<p>
-Given their success, there are a few things that I think related to their future, possible applications, and missing pieces. 
-
-Your PFN can do more than just model the posterior predictive distribution of your data. Most of tabular data tasks involve trying to predicit a missing piece of your data, I have a explicit target variable which I don't know the true value of, and so, I will use my super powerfull PFN to uncover it's true value. Doing that you can do (stuff), and it's certainly usefull, but I fell your model could deliever more than that, giving an example I worked on, ShapPFN!!! Those still present in the tabular data mines, probably have heard of Shapley Additive Values (or just SHAP), their goal is basically to give you an estimation on how much each feature is important to the model. The standard way one would try to estime the shap values for a giving model, is by masking subset of features, and seeing how the final prediction changes when the model has no information about those masked features. The problem is, for a tabular foundational model, getting those masked predictions is more costly than for other simpler models. Some newer methods try to amortize this cost by caching and things like that, but we can go a different path in order to solve this problem. ViaSHAP, went on a different direction, instead of treating the shap value estimation as a post-hoc procedure, it transfered the estimation cost to the training phase, by treating the model as a 'projection' that, for each feature passed, outputs its shapley value, the prediction itself is then aquired by summing up the individual contributions, so you just apply a CE loss on the final prediction and a shap consistency one on the attributions that were made. When I read the ViaSHAP paper, for me their method was a natural fit for the PFN paradigm, in PFNs you attribute the cost of learning a new dataset to pretraining and by using a ViaSHAP style model you attribute the cost of estimating shap values to the learning a new dataset phase. 
-
-<p>And there are many other different directions one could go about using this kind of model, you could maximize the axis of improving your tabarena score, but there are also </p>
+<p>Although they weren't the first application of transformers to tabular data, I see them as the first real
+  bitter-lesson-pilled approach to this domain. You can scale pretraining by generating more and better synthetic
+  datasets, giving the models more opportunities to learn how to use context information for prediction on real-world
+  data. Deciding what makes those synthetic datasets "better" is still something to be discussed, but at least this
+  gives us a
+  direction for scaling.</p>
 
 
+<section>
+  <h2>Beyond Prediction</h2>
+
+  <p>Your PFN can do more than predict a target variable. Many tabular tasks involve predicting a missing piece of
+    information: I have an explicit target variable whose value I don't know, and so I will use my super powerful PFN to
+    estimate it. That is certainly useful, but working with data rarely ends with just a prediction. For example, we
+    might want to understand why the model made it and what we can do with that information.</p>
+</section>
+
+<section>
+  <h2>Learning to explain during pretraining</h2>
+  <p>Based on that, I started working on ShapPFN <a href="#ref-sena2026">[7]</a>. Those still working in the tabular
+    data mines have probably heard of
+    SHapley Additive exPlanations (or just SHAP) <a href="#ref-lundberg2017">[2]</a>. The idea is to give each feature a
+    contribution value for a prediction
+    relative to a baseline.</p>
+
+  <p>The common way to obtain these values is by evaluating subsets of features and observing how the prediction changes
+    when features are removed. But this ends up requiring many more model evaluations. This cost can be especially high
+    for tabular foundation models, as the forward pass is more expensive than for tree-based models or MLPs.
+  </p>
+
+  <p>Some methods try to reduce this cost for PFNs by caching and reusing computations, but we can take a different
+    path.
+    ViaSHAP <a href="#ref-alkhatib2025">[3]</a> presented a way to move attribution estimation into the training phase,
+    the model itself outputs the SHAP
+    values for you, and the prediction is obtained by summing up those feature contributions. The training loss
+    encourages both prediction accuracy and Shapley value consistency.</p>
+
+  <p>When I read the ViaSHAP paper, their method seemed like a natural fit for the PFN paradigm. With PFNs we move the
+    cost of learning from a new dataset to pretraining, with ViaSHAP we move the cost of estimating SHAP values to the
+    training phase.</p>
+
+  <p>That idea was the motivation behind ShapPFN, bringing ViaSHAP-style attribution into the PFN setting, so that the
+    model produces feature attributions alongside its predictions.</p>
+</section>
+
+<section>
+  <h2>ShapPFN</h2>
+
+  <figure class="article-figure">
+    <picture class="article-figure__media">
+      <source srcset="images/shappfn_arch.png" type="image/png">
+      <img class="diagram" src="images/shappfn_arch.png" alt="Overview of ShapPFN" width="2167" height="1155">
+    </picture>
+    <figcaption class="article-figure__caption">ShapPFN Overview</figcaption>
+  </figure>
+  <!-- <p>The idea to make it work is simple, based on the TabPFNv2 architecture, each cell is embedded as an n dimensional vector, alternating layers of row and column attention, allows the model to capture the instricic tabular nature of the data. After the attention layers, for each cell in a target row, we decode a Shap contribution value, and the final prediction is given by summing up all row contributions.
+  </p> -->
+
+  <p>
+    The core architecture is simple, each cell is embedded
+    as an n-dimensional vector, and alternating layers of row and column attention
+    allow the model to capture relationships between features and rows.
+    After the attention layers, we decode a SHAP contribution value for each
+    cell in a target row. The final prediction is given by summing up all
+    contributions in the row plus the baseline term.
+  </p>
+
+  <p>
+    That architecture already gives us a way to get attributions from our model,
+    but we need to give meaning to those attributions. To do that, we use a
+    modified version of the ViaSHAP loss, which enforces that the model prediction
+    when only a subset of features is available is close to the sum of the
+    contributions assigned to those features. My changes were focused on three things:
+  </p>
 
 
-</p>
-<!-- 
-<p>This is the first post on my small corner of the internet.</p>
 
-<h2>What belongs here</h2>
-<p>I want this to be a home for notes on machine learning, projects, and whatever else I am thinking about.</p>
+  <ol>
+    <li>
+      <p>
+        <strong>A baseline term.</strong> Using the ViaSHAP approach, the default
+        prediction would be 0, and the feature contributions would be based on
+        how much they move the prediction from this baseline. Instead of summing only the feature attributions, we use a
+        baseline term extracted from the target embedding of the training rows.
+        That term corresponds to the prediction the model would make if no
+        information about the features in one row were available.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>A kernel weighting term.</strong> We use the Shapley kernel to weight the loss according to the size of
+        each feature
+        subset, giving our attribution loss a Shapley-based objective, rather than treating each subset size equally.
+      </p>
+    </li>
+    <li>
+      <p>
+        <strong>What a masked feature means.</strong> There are different ways
+        to mask a feature, and each gives you a different Shapley game <a href="#ref-janzing2020">[4]</a>.
+        There isn't one right or wrong way to define it. I chose to use
+        the Monte Carlo estimation method used by KernelSHAP instead of the
+        feature mean baseline proposed by ViaSHAP. For a nonlinear model, averaging predictions is usually different
+        from
+        predicting at the average point. Monte Carlo sampling approximates that average without evaluating every
+        background row.
 
-<ul>
-  <li>Experiments worth documenting</li>
-  <li>Things I am learning</li>
-  <li>Useful links and ideas</li>
-</ul>
+      </p>
+    </li>
+  </ol>
+  <p>These changes also affect what we are trying to explain. There are many different ways one might reference the
+    data, examples and model when getting an explanation, our decisions are closer to KernelSHAP than the original
+    ViaSHAP paper, not because we agree more with KernelSHAP on what should be the basis for an explanation, but because
+    it is the default way for most ML practitioners.</p>
+  <style>
+    .formula-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(180px, 0.65fr);
+      align-items: center;
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
 
-<blockquote>Small, unfinished thoughts are welcome here too.</blockquote>
+    .formula-row .equation {
+      min-width: 0;
+      overflow-x: auto;
+    }
 
-<p>Add a new HTML file in the <code>posts/</code> folder, then add its card information to <code>posts/index.json</code>.</p> -->
+    .formula-row p {
+      margin: 0;
+      font-size: 0.9em;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 700px) {
+      .formula-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+      }
+    }
+  </style>
+
+  <div class="formula-row">
+    <div class="equation">
+      \[
+      f_\theta(x) = \operatorname{base}(x)
+      + \sum_{f=1}^{F} \phi_f(x)
+      \]
+    </div>
+    <p>
+      What the model predicts based on the feature contributions.
+    </p>
+  </div>
+
+  <div class="formula-row">
+    <div class="equation">
+      \[
+      \hat{f}_\theta(x^s)
+      = \frac{1}{K}\sum_{k=1}^{K} f_\theta(x_k^s)
+      \]
+    </div>
+    <p>
+      Monte Carlo sampling for a subset \(s\), averaging the prediction over multiple replacements.
+    </p>
+  </div>
+
+  <div class="formula-row">
+    <div class="equation">
+      \[
+      \bar{f}_\theta(x^s)
+      = \operatorname{base}(x) + \sum_{j \in s}\phi_j(x)
+      \]
+    </div>
+    <p>
+      Prediction for a feature subset \(s\).
+    </p>
+  </div>
+
+
+  <div class="formula-row">
+    <div class="equation">
+      \[
+      w_s = \frac{F-1}{
+      \binom{F}{|s|}\,|s|\,(F-|s|)
+      }
+      \]
+    </div>
+    <p>
+      The weighting term according to the subset and feature sizes.
+    </p>
+  </div>
+
+  <div class="formula-row">
+    <div class="equation">
+      \[
+      \mathcal{L}_{\mathrm{shap}}
+      = \frac{1}{S}\sum_{s=1}^{S}
+      w_s \left(
+      \bar{f}_\theta(x^s) - \hat{f}_\theta(x^s)
+      \right)^2
+      \]
+    </div>
+    <p>
+      The loss that penalizes disagreement.
+    </p>
+  </div>
+
+
+</section>
+
+<section>
+  <h2>Results</h2>
+  <p>To evaluate ShapPFN performance, we measure predictive performance and KernelSHAP agreement on datasets
+    from the OpenML-CC18 <a href="#ref-bischl2021">[5]</a> benchmark. For performance, we compare against NanoTabPFN <a
+      href="#ref-pfefferle2025">[6]</a>, which is the base of our architecture and shares a similar parameter count. A subset of the datasets was used for  hyperparameter optimization (HPO) for both ShapPFN and NanoTabPFN. We also include TabPFNv2 as a stronger baseline. 
+  </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Predictive Performance table">
+    <table class="article-table article-table--results">
+      <caption>Predictive Performance (ROC-AUC)</caption>
+      <thead>
+        <tr>
+          <th scope="col">Group</th>
+          <th scope="col">TabPFNv2</th>
+          <th scope="col">NanoTabPFN</th>
+          <th scope="col">ShapPFN(+loss)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">HPO datasets</th>
+          <td>0.851</td>
+          <td>0.823</td>
+          <td>0.815</td>
+        </tr>
+        <tr>
+          <th scope="row">Eval only datasets</th>
+          <td>0.876</td>
+          <td>0.854</td>
+          <td>0.855</td>
+        </tr>
+        <tr>
+          <th scope="row">All datasets</th>
+          <td>0.872</td>
+          <td>0.848</td>
+          <td>0.848</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>On the performance side we can see that we can achieve similar scores to NanoTabPFN, with a little
+    difference on the HPO and eval datasets. This result demonstrates that using the additive architecture and the loss
+    preserve predictive performance relative to NanoTabPFN.</p>
+  <p>As for the explanation quality we compare the attributions made by our model with the ones produced by KernelSHAP
+    when treating ShapPFN as a black box model. </p>
+  <div class="table-scroll" tabindex="0" role="region" aria-label="Explanation Quality and Speed table">
+    <table class="article-table article-table--results">
+      <caption>Explanation Quality and Speed</caption>
+      <thead>
+        <tr>
+          <th scope="col">Method</th>
+          <th scope="col">Time (s)</th>
+          <th scope="col">Speedup</th>
+          <th scope="col">R<sup>2</sup></th>
+          <th scope="col">Cosine</th>
+          <th scope="col">Spearman</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">KernelSHAP</th>
+          <td>610</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <th scope="row">ShapPFN(+loss)</th>
+          <td>0.06</td>
+          <td>1364×</td>
+          <td>0.963</td>
+          <td>0.987</td>
+          <td>0.954</td>
+        </tr>
+        <tr>
+          <th scope="row">ShapPFN (arch only)</th>
+          <td>0.06</td>
+          <td>1364×</td>
+          <td>0.179</td>
+          <td>0.750</td>
+          <td>0.687</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="article-table-note">Times are arithmetic means across datasets. Speedup is the geometric mean.</p>
+  <p>ShapPFN(+loss) explanations closely resemble the ones given by KernelSHAP, but
+    are produced in a fraction of the time, as we only need to evaluate the model once. Another interesting result is
+    that the architecture-only version of ShapPFN has a low agreement with KernelSHAP, although some metrics
+    like the cosine similarity show some form of alignment. </p>
+  <p>These results show that it is possible to have the cost of explanations amortized by using PFNs. ShapPFN
+    can accelerate usual data science pipelines because not only you get your prediction in instants, but also their
+    explanations. This also unlocks new doors, as an example, BorutaSHAP is a feature selection method based on
+    SHAP values, where we need to constantly retrain and extract Shapley values from our model in order to select the
+    best
+    subset of features, by using ShapPFN, both the cost of training and the cost of attribution are amortized
+    by the pretrain!</p>
+</section>
+
+<section>
+  <h2>What else could a PFN learn to do?</h2>
+  <p>And there are many other directions one could explore with this kind of model. Improving your TabArena score is one
+    of them, but I'm also interested in expanding what a PFN can do with a new dataset. Explanations are one example,
+    but
+    what other tabular data tasks could we model as a PFN objective?</p>
+</section>
+
+<section class="references" aria-labelledby="references-heading">
+  <h2 id="references-heading">References</h2>
+
+  <ol>
+    <li id="ref-hollmann2025">
+      Hollmann, N., et al. (2025).
+      <cite>Accurate predictions on small data with a tabular
+        foundation model.</cite>
+      Nature, 637, 319–326.
+      <a href="https://doi.org/10.1038/s41586-024-08328-6">Paper</a>
+    </li>
+
+    <li id="ref-lundberg2017">
+      Lundberg, S. M., and Lee, S.-I. (2017).
+      <cite>A Unified Approach to Interpreting Model Predictions.</cite>
+      NeurIPS.
+      <a href="https://arxiv.org/abs/1705.07874">Paper</a>
+    </li>
+
+    <li id="ref-alkhatib2025">
+      Alkhatib, A., Bresson, R., Boström, H., and
+      Vazirgiannis, M. (2025).
+      <cite>Prediction via Shapley Value Regression.</cite>
+      ICML.
+      <a href="https://openreview.net/forum?id=ZD3VMCvxvM">Paper</a>
+    </li>
+
+    <li id="ref-janzing2020">
+      Janzing, D., Minorics, L., and Bloebaum, P. (2020).
+      <cite>Feature relevance quantification in explainable AI:
+        A causal problem.</cite>
+      AISTATS, Proceedings of Machine Learning Research,
+      108, 2907–2916.
+      <a href="https://proceedings.mlr.press/v108/janzing20a.html">
+        Paper
+      </a>
+    </li>
+
+    <li id="ref-bischl2021">
+      Bischl, B., et al. (2021).
+      <cite>OpenML Benchmarking Suites.</cite>
+      NeurIPS Datasets and Benchmarks Track.
+      <a href="https://openreview.net/forum?id=OCrD8ycKjG">Paper</a>
+    </li>
+
+    <li id="ref-pfefferle2025">
+      Pfefferle, A., Hog, J., Purucker, L., and Hutter, F. (2025).
+      <cite>nanoTabPFN: A Lightweight and Educational
+        Reimplementation of TabPFN.</cite>
+      arXiv:2511.03634.
+      <a href="https://arxiv.org/abs/2511.03634">Paper</a>
+    </li>
+    <li id="ref-sena2026">
+      Sena, L. B. T. R., and Azevedo, F. G. (2026).
+      <cite>[Short] Real-time explanations for tabular foundation models.</cite>
+      ICLR Workshop on Foundation Models for Science:
+      Real-World Impact and Science-First Design.
+      <a href="https://openreview.net/forum?id=StSMBSZqxx">Paper</a>
+    </li>
+  </ol>
+</section>

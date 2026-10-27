@@ -1,32 +1,10 @@
+
 [
-  {
-    "file": "welcome.html",
-    "title": "Welcome to my little website",
-    "date": "2026-09-26",
-    "description": "A first note about what I hope to share here."
-  },
   {
     "file": "pfns.html",
     "title": "PFNs can do more than prediction",
-    "date": "2026-09-26",
-    "description": "A first note about what I hope to share here."
-  },
-  {
-    "file": "audio.html",
-    "title": "Welcome to my little website",
-    "date": "2026-09-26",
-    "description": "A first note about what I hope to share here."
-  },
-  {
-    "file": "audio2.html",
-    "title": "Welcome to my little website",
-    "date": "2026-09-26",
-    "description": "A first note about what I hope to share here."
-  },
-  {
-    "file": "audio3.html",
-    "title": "Welcome to my little website",
-    "date": "2026-09-26",
-    "description": "A first note about what I hope to share here."
+    "date": "2026-10-04",
+    "description": "Predictions are useful, but what else could a PFN learn to do with a new dataset?",
+    "category": "PROJECT"
   }
 ]

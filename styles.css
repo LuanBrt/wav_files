@@ -312,11 +312,8 @@ footer p { margin: 0; } footer div { display: flex; gap: 18px; }
   .intro,
   #writing { position: relative; }
   .margin-section { color: var(--text); display: block; font: .7rem/1.2 var(--font-margin); left: calc(100% + 16px); letter-spacing: .08em; position: absolute; text-decoration: none; top: 0; white-space: nowrap; }
-  .margin-section::before { background: var(--margin-line); content: ""; height: 1px; position: absolute; right: calc(100% + 8px); top: 50%; width: 16px; }
   .margin-section:hover,
   .margin-section:active { color: var(--text); }
-  .margin-section:hover::before,
-  .margin-section:active::before { background: var(--margin-accent); }
   .margin-section:focus-visible { outline: 1px solid var(--margin-accent); outline-offset: 5px; }
   .signal-study { bottom: 42px; color: var(--text); display: block; margin: 0; position: fixed; right: max(24px, calc(50% - 470px - var(--signal-width))); width: var(--signal-width); }
   .signal-study svg { display: block; height: auto; width: 100%; }
